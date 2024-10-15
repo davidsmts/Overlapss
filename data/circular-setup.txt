@@ -1,0 +1,10 @@
+R=atgctcgtcgaagtacatgc
+A=ggcgagagcctgagcgccat
+B=gcgcatgaggagtgcggctt
+C=tctgtaaagaaactcgcgca
+#overlap except for
+A-R=cgagagcctgagcgccatatgctcgtcgaagtacat
+R-B=gctcgtcgaagtacatgcgcgcatgaggagtgcggc
+B-R=gcatgaggagtgcggcttatgctcgtcgaagtacat
+R-C=gctcgtcgaagtacatgctctgtaaagaaactcgcg
+C-A=tgtaaagaaactcgcgcaggcgagagcctgagcgcc
