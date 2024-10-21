@@ -7,4 +7,4 @@ A-R=cgagagcctgagcgccatatgctcgtcgaagtacat
 R-B=gctcgtcgaagtacatgcgcgcatgaggagtgcggc
 B-R=gcatgaggagtgcggcttatgctcgtcgaagtacat
 R-C=gctcgtcgaagtacatgctctgtaaagaaactcgcg
-C-A=tgtaaagaaactcgcgcaggcgagagcctgagcgcc
+#C-A=tgtaaagaaactcgcgcaggcgagagcctgagcgcc
