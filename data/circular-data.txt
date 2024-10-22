@@ -3,3 +3,5 @@ cgagagcctgagcgccatatgctcgtcgaagtacat
 gctcgtcgaagtacatgcgcgcatgaggagtgcggc
 gcatgaggagtgcggcttatgctcgtcgaagtacat
 gctcgtcgaagtacatgctctgtaaagaaactcgcg
+atgctcgtcgaagtacatgc
+ggcgagagcctgagcgccat
