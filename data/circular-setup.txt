@@ -1,4 +1,4 @@
-R=atgctcgtcgaagtacatgc
+R=tggctcgtcgaagtacattc
 A=ggcgagagcctgagcgccat
 B=gcgcatgaggagtgcggctt
 C=tctgtaaagaaactcgcgca
