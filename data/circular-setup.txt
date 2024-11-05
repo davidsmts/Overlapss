@@ -3,9 +3,10 @@ A=ggcgagagcctgagcgccat
 B=gcgcatgaggagtgcggctt
 C=tctgtaaagaaactcgcgca
 #overlap except for
-A-R=cgagagcctgagcgccatatgctcgtcgaagtacat
-R-B=gctcgtcgaagtacatgcgcgcatgaggagtgcggc
-B-R=gcatgaggagtgcggcttatgctcgtcgaagtacat
-R-C=gctcgtcgaagtacatgctctgtaaagaaactcgcg
+A-R=ggcgagagcctgagcgccattggctcgtcgaagtacattc
+R-B=tggctcgtcgaagtacattcgcgcatgaggagtgcggctt
+B-R=gcgcatgaggagtgcggctttggctcgtcgaagtacattc
+R-C=tggctcgtcgaagtacattctctgtaaagaaactcgcgca
 R-B2=agtacatgcgcgcatgaggagtgcggctt
 #C-A=tgtaaagaaactcgcgcaggcgagagcctgagcgcc
+ggcgagagcctgagcgccattggctcgtcgaagtacattcgcgcatgaggagtgcggctttggctcgtcgaagtacattctctgtaaagaaactcgcgca
