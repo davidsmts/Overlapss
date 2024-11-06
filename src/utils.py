@@ -1,4 +1,5 @@
 import numpy as np
+from Bio import SeqIO
 
 def get_precision_recall(estimated_positions, true_positions):
     TP, FP, FN = 0, 0, 0
@@ -62,3 +63,12 @@ def getskmer(snippet, profile):
     spaced_kmer = spaced_kmer[spaced_kmer != 0]
     s = ''.join(str(x) for x in spaced_kmer)
     return s
+
+
+def load_fasta(filename):
+    fasta_sequences = SeqIO.parse(open(filename),'fasta')
+    seqs = []
+    for fasta in fasta_sequences:
+        name, sequence = fasta.id, str(fasta.seq)
+        seqs.append(sequence)
+    return seqs
