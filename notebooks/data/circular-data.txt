@@ -11,4 +11,3 @@ gagtgcggctttggctcgtcgaag
 tggctcgtcgaagtacattctctgtaaagaaactcgcgca
 gctcgtcgaagtacattctctgtaaagaaactcgcg
 gtcgaagtacattctctgtaaagaaact
-tctgtaaagaaactcgcgcaggcgagagcctgagcgccat

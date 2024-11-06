@@ -39,18 +39,6 @@ def correct_counts(maxed_counts, maxed_count_indices, target_sequence, start_end
         # Make sure we have a change position on our hands.
         if maxed_counts[i] != maxed_counts[i-1]: 
             # Correct for reads that start in between the two maxed_count indices:
-            #start_sum_at = max(i-f,0)
-            #start_sum_at = max(0, maxed_count_indices[i-1]-f+1)
-            '''
-            start_sum_at = maxed_count_indices[i-1]
-            end_sum_at = maxed_count_indices[i]+1
-            if start_sum_at <= end_sum_at:
-                correction = sum(start_end_posis[start_sum_at:end_sum_at])
-            else:
-                correction = -sum(start_end_posis[end_sum_at:start_sum_at])
-            diff_profile[i-1] += correction
-            correction_artifact.append([correction, (start_sum_at, end_sum_at), start_end_posis[start_sum_at:end_sum_at]])
-            '''
             start_sum_at = last_correction
             end_sum_at = maxed_count_indices[i]+1
             #end_sum_at = i+1
@@ -59,38 +47,30 @@ def correct_counts(maxed_counts, maxed_count_indices, target_sequence, start_end
                 correction = sum(start_end_posis[start_sum_at:end_sum_at])
             else:
                 correction = -sum(start_end_posis[end_sum_at:start_sum_at])
-                
-            # This if clause tries to prevent the eclipse
-            # The important part of this is that the last_correction is not updated if we have a SNP or seqerr
-            #if diff_profile[i-1] + correction == 0: # If not we have a SNP or seq error
+            
             last_correction = maxed_count_indices[i] + 1
             diff_profile[i-1] += correction
             correction_artifact.append([correction, (start_sum_at, end_sum_at), start_end_posis[start_sum_at:end_sum_at]])
-            
-            #else:
-                #print("ABORTED:")
-                #print(end_sum_at)
-                #print(start_end_posis[start_sum_at:end_sum_at])
+
     return diff_profile, correction_artifact
 
 
 
-def get_correction_profile(target, seqs, overlap_size):
-    corr_profile = [0 for i in range(len(target)-overlap_size)]
+def get_correction_profile(target, seqs, overlap_size, start_dict, end_dict):
+    corr_profile = [0 for i in range(len(target)-overlap_size+1)]
     #corr_profile[0] = -1
     for i in range(len(target)-overlap_size):
-        #
-        #if i == 0:
-            # Note that this whole check is necessary because our target sequence, i.e. the read we are investigating at the moment
-            # also starts at the beginning and would thus be added to the count profile. We anticipate this by increasing the correction
-            # profile at this point to one s.t. the loop below can reduce it to zero in the first step if just our sequence starts there.
-            # If another sequence starts here, then the loop below will reduce the correction profile below zero
-            #corr_profile[0] = 1
-        for seq in seqs:
-            if (target[i : i+overlap_size] == seq[0 : overlap_size]).all(): # starts
-                corr_profile[i] -= 1
-            elif (target[i : i+overlap_size] == seq[len(seq)-overlap_size : len(seq)]).all(): # ends
-                corr_profile[i] += 1
+        start_snippet = ''.join(str(x) for x in target[i : i+overlap_size])      
+        if start_snippet in start_dict:
+
+            corr_profile[i] -= start_dict[start_snippet]
+
+    for i in range(overlap_size, len(target)+1):
+        end_snippet = ''.join(str(x) for x in target[i-overlap_size : i])
+        if end_snippet in end_dict:
+            corr_profile[i-overlap_size+1] += end_dict[end_snippet]
+    
+        
     corr_profile[0]=0
     return corr_profile
 
@@ -119,16 +99,24 @@ def correct_diff_profile(filename, str_profile, seq_to_investigate, data=[]):
     profile = np.array(profile)
     
     # Count occurence of spaced k-mers
+    starts, ends = {}, {}
     seqs_kmers = {}
     for sequence in seqs:
         for i in range(len(sequence) - f):
             spaced_kmer = sequence[i:i+f] * profile
             spaced_kmer = spaced_kmer[spaced_kmer != 0]
             s = ''.join(str(x) for x in spaced_kmer)
-            if s not in seqs_kmers:
-                seqs_kmers[s] = 1
-            else:
-                seqs_kmers[s] += 1
+            seqs_kmers[s] = seqs_kmers.get(s, 0) + 1
+
+            if i == 0 or i == len(sequence)-f-1:
+                solid_kmer = sequence[i:i+f]
+                s2 = ''.join(str(x) for x in solid_kmer)
+                addon = 0
+                if i == 0:
+                    starts[s2] = starts.get(s2, 0) + 1
+                else: 
+                    ends[s2] = ends.get(s2, 0) + 1
+
     
     # Get maxcounts from counts
     target = seqs[seq_to_investigate]
@@ -139,11 +127,9 @@ def correct_diff_profile(filename, str_profile, seq_to_investigate, data=[]):
         maxp, argmaxp = get_maxcount(i, seqs, seqs_kmers, profile, seq_to_investigate=seq_to_investigate)
         max_counts.append(maxp)
         max_count_indices.append(argmaxp)
-    #print(max_count_indices)
+
     # Get correction profile:
-    start_end_posis = get_correction_profile(target, seqs, f)
-    #print(start_end_posis)
-    #print(max_count_indices)
+    start_end_posis = get_correction_profile(target, seqs, f, starts, ends)
     
     # Get diff profile:
     pre_corr_diff_profile = [max_counts[j] - max_counts[j-1] for j in range(1,len(max_counts))]

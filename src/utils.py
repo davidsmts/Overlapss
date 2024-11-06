@@ -53,7 +53,7 @@ def parse_nucleotides(sequence):
     map_to_vals = {"a": 1, "c": 2, "g": 3, "t":4}
     for symbol in sequence:
         new_seq.append(map_to_vals[symbol])
-        
+    
     return new_seq
 
 
