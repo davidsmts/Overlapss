@@ -48,10 +48,49 @@ def get_reads_from(seq, read_len=200, coverage=5):
         reads.append(read)
     return reads
 
+def get_even_reads_from_fasta(file, read_len=250, amt=6):
+    seq = load_fasta(file)
+    step_size = int(len(seq)/(2*read_len))
+    reads = []
+    reads.append(seq)
+    i=0
+    while i <= len(seq)-read_len:
+        reads.append(seq[i:i+read_len])
+        randomness = np.random.randint(-2,2)
+        i += int(read_len / amt) + randomness
+    reads.append(seq[len(seq)-read_len:len(seq)])
+    return reads
 
-def parse_nucleotides(sequence):
+
+def get_reads_from_fasta(file, read_len=200, coverage=5):
+    seq = load_fasta(file)
+    L = len(seq)
+    print(L)
+    read_amt = int(L/read_len * coverage)
+    reads = []
+    for _ in range(read_amt):
+        start = np.random.randint(0,L-read_len)
+        read = seq[start:start+read_len]
+        reads.append(read)
+    return reads
+
+
+def write_reads(reads, filename):
+    with open(filename, "w") as txt_file:
+        for i in range(len(reads)-1):
+            line = reads[i]
+            txt_file.write("".join(line) + "\n")
+        print(line)
+        line = reads[len(reads)-1]
+        txt_file.write("".join(line))
+
+
+def parse_nucleotides(sequence, caps=True):
     new_seq = []
-    map_to_vals = {"a": 1, "c": 2, "g": 3, "t":4}
+    if caps:
+        map_to_vals = {"A": 1, "C": 2, "G": 3, "T":4}
+    else:
+        map_to_vals = {"a": 1, "c": 2, "g": 3, "t":4}
     for symbol in sequence:
         new_seq.append(map_to_vals[symbol])
     
@@ -71,4 +110,6 @@ def load_fasta(filename):
     for fasta in fasta_sequences:
         name, sequence = fasta.id, str(fasta.seq)
         seqs.append(sequence)
-    return seqs
+    #print(len(sequence))
+    return seqs[1]
+
