@@ -111,5 +111,5 @@ def load_fasta(filename):
         name, sequence = fasta.id, str(fasta.seq)
         seqs.append(sequence)
     #print(len(sequence))
-    return seqs[1]
+    return seqs[0]
 

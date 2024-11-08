@@ -160,8 +160,8 @@ def detect_repeats_greedy(ypoints):
 
     # Detect repeat at the end if the last irregularity is a spike
     for i in range(len(spikes)):
-        if dips[len(dips)] <= spikes[len(spikes)-i]:
-            repeat_regions.append((spikes[len(spikes)-i],len(ypoints)))
+        if dips[len(dips)-1] <= spikes[len(spikes)-i-1]:
+            repeat_regions.append((spikes[len(spikes)-i-1],len(ypoints)))
 
 
     # Remove enclosures
@@ -185,6 +185,19 @@ def detect_repeats_greedy(ypoints):
             repeat_regions.insert(0, (reg[0], reg2[1]))
 
     return repeat_regions
+
+def detect_repeats_2(ypoints):
+    repeat_region = (0,0)
+    spikes = [pos for pos in range(len(ypoints)) if ypoints[pos] > 0]
+    dips = [pos for pos in range(len(ypoints)) if ypoints[pos] < 0]
+    if len(spikes) > len(dips):
+        repeat_region = (spikes[0], len(ypoints))
+    elif len(dips) > len(spikes):
+        repeat_region = (0, dips[len(dips)-1])
+    
+    return repeat_region
+    
+
 
 def remove_repeats(filename, str_profile, data=[], txt=True):
     seqs = []
@@ -210,6 +223,7 @@ def remove_repeats(filename, str_profile, data=[], txt=True):
     profile = np.array(profile)
     
     # Count occurence of spaced k-mers
+    print("building hashmap")
     starts, ends = {}, {}
     seqs_kmers = {}
     for sequence in seqs:
@@ -254,32 +268,22 @@ def remove_repeats(filename, str_profile, data=[], txt=True):
         ypoints, correction_artifact = correct_counts(max_counts, max_count_indices, target, start_end_posis, seqs, pre_corr_diff_profile.copy(), profile)
 
         # detect repeats 
-        irregularities = [pos for pos in range(len(ypoints)) if np.abs(ypoints[pos]) > 1]
+        #irregularities = [pos for pos in range(len(ypoints)) if np.abs(ypoints[pos]) > 1]
+        repeat_region = detect_repeats_2(ypoints)
+        if repeat_region != (0,0):
+            start = 0
+            end = 0
+            if repeat_region[0] > 0:
+                start = 0
+                end = repeat_region[0]
+            else:
+                start = repeat_region[1]
+                end = len(ypoints)
 
-
-        if len(irregularities) > 2:
-            print("Too many irregularities in seq "+str(target_index)+".")
-            print(ypoints)
-            print(len(irregularities))
-            print(irregularities)
-            new_seqs.append(target)
-            errors += 1
-        elif len(irregularities) == 2:
-            read_wout_rep = np.concatenate((target[:irregularities[0]], target[irregularities[1]:]))
+            read_wout_rep = target[start:end]
             new_seqs.append(read_wout_rep)
-            corrections += 1
-        elif len(irregularities) == 1:
-            if irregularities[0] <= len(target) - irregularities[0]:
-                read_wout_rep = target[irregularities[0]:]
-            else: 
-                read_wout_rep = target[:irregularities[0]]
-            new_seqs.append(read_wout_rep)
-            corrections += 1
-        else:
-            no_irr += 1
-    
+        
     print("corrections: " + str(corrections))
     print("errors: " + str(errors))
     print("wout irregularities: " + str(no_irr))
     return seqs
-
