@@ -73,7 +73,7 @@ def get_reads_from_fasta(file, read_len=200, coverage=5):
         start = np.random.randint(0,L-read_len)
         read = seq[start:start+read_len]
         reads.append(read)
-    return reads
+    return reads, seq
 
 
 def write_reads(reads, filename):

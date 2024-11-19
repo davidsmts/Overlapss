@@ -24,14 +24,15 @@ if args.opt_kmer_profile:
 
 if args.opt_get_reads and args.opt_reads_into:
     print("creating reads from " + args.opt_get_reads)
-    reads = utils.get_even_reads_from_fasta(args.opt_get_reads, read_len=args.opt_read_len, amt=args.opt_read_cov)
+    reads, seq = utils.get_reads_from_fasta(args.opt_get_reads, read_len=args.opt_read_len, amt=args.opt_read_cov)
     utils.write_fasta(reads[0], args.opt_reads_into, nums=False)
+    utils.write_fasta(seq, "full_" + args.opt_reads_into, nums=False)
 
 elif args.remove_repeats:
     data = utils.load_fasta_seqs(args.file)
     correct_reads, chopped_reads = overlapss.remove_repeats(args.file, profile, data=data)
-    utils.write_fasta(correct_reads, "../data/wout_reps/long_correct.fasta", nums=True)
-    utils.write_fasta(chopped_reads, "../data/wout_reps/long_chopped.fasta", nums=True)
+    utils.write_fasta(correct_reads, "../data/wout_reps/correct.fasta", nums=True)
+    utils.write_fasta(chopped_reads, "../data/wout_reps/chopped.fasta", nums=True)
     #plt.plot(xpoints, ypoints)
     #plt.show()
 
