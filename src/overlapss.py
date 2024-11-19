@@ -96,7 +96,7 @@ def correct_diff_profile(filename, str_profile, seq_to_investigate, data=[]):
     # Turn into np arrays for componentwise multiplication
     profile = np.array(profile)
     
-    # Count occurence of spaced k-mers
+    print("building hashmap")
     starts, ends = {}, {}
     seqs_kmers = {}
     for sequence in seqs:
@@ -115,7 +115,7 @@ def correct_diff_profile(filename, str_profile, seq_to_investigate, data=[]):
                 else: 
                     ends[s2] = ends.get(s2, 0) + 1
 
-    
+    print("Getting and fixing maxcounts now")
     # Get maxcounts from counts
     target = seqs[seq_to_investigate]
     xpoints = np.array([i for i in range(len(target) - f)])
@@ -194,6 +194,8 @@ def detect_repeats_2(ypoints):
         repeat_region = (spikes[0], len(ypoints))
     elif len(dips) > len(spikes):
         repeat_region = (0, dips[len(dips)-1])
+    elif len(dips) > 0:
+        print("Only small repeat.")
     
     return repeat_region
     
@@ -245,7 +247,8 @@ def remove_repeats(filename, str_profile, data=[], txt=True):
     errors = 0
     corrections = 0
     no_irr = 0
-    new_seqs = []
+    correct_reads = []
+    chopped_reads = []
     for target_index in range(1, len(seqs)):
         # Get maxcounts from counts
         target = seqs[target_index]
@@ -266,11 +269,14 @@ def remove_repeats(filename, str_profile, data=[], txt=True):
         
         # Apply correction strategy
         ypoints, correction_artifact = correct_counts(max_counts, max_count_indices, target, start_end_posis, seqs, pre_corr_diff_profile.copy(), profile)
-
+            
         # detect repeats 
         #irregularities = [pos for pos in range(len(ypoints)) if np.abs(ypoints[pos]) > 1]
         repeat_region = detect_repeats_2(ypoints)
+
         if repeat_region != (0,0):
+            print("detected repeat: ")
+            print(repeat_region)
             start = 0
             end = 0
             if repeat_region[0] > 0:
@@ -281,9 +287,8 @@ def remove_repeats(filename, str_profile, data=[], txt=True):
                 end = len(ypoints)
 
             read_wout_rep = target[start:end]
-            new_seqs.append(read_wout_rep)
+            chopped_reads.append(read_wout_rep)
+        else:
+            correct_reads.append(target)
         
-    print("corrections: " + str(corrections))
-    print("errors: " + str(errors))
-    print("wout irregularities: " + str(no_irr))
-    return seqs
+    return correct_reads, chopped_reads

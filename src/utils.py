@@ -48,6 +48,7 @@ def get_reads_from(seq, read_len=200, coverage=5):
         reads.append(read)
     return reads
 
+
 def get_even_reads_from_fasta(file, read_len=250, amt=6):
     seq = load_fasta(file)
     step_size = int(len(seq)/(2*read_len))
@@ -79,6 +80,7 @@ def write_reads(reads, filename):
     with open(filename, "w") as txt_file:
         for i in range(len(reads)-1):
             line = reads[i]
+            #txt_file.write(">"+str(i)+"\n")
             txt_file.write("".join(line) + "\n")
         print(line)
         line = reads[len(reads)-1]
@@ -91,6 +93,17 @@ def parse_nucleotides(sequence, caps=True):
         map_to_vals = {"A": 1, "C": 2, "G": 3, "T":4}
     else:
         map_to_vals = {"a": 1, "c": 2, "g": 3, "t":4}
+    for symbol in sequence:
+        new_seq.append(map_to_vals[symbol])
+    
+    return new_seq
+
+def parse_num_to_nuc(sequence, caps=True):
+    new_seq = []
+    if caps:
+        map_to_vals = {1: "A", 2: "C", 3: "G", 4 : "T"}
+    else: 
+        map_to_vals = {1: "a", 2: "c", 3: "g", 4 : "t"}
     for symbol in sequence:
         new_seq.append(map_to_vals[symbol])
     
@@ -111,5 +124,35 @@ def load_fasta(filename):
         name, sequence = fasta.id, str(fasta.seq)
         seqs.append(sequence)
     #print(len(sequence))
+    for seq in seqs:
+        print(len(seq))
     return seqs[0]
+
+def load_fasta_seqs(filename):
+    fasta_sequences = SeqIO.parse(open(filename),'fasta')
+    seqs = []
+    for fasta in fasta_sequences:
+        name, sequence = fasta.id, str(fasta.seq)
+        seqs.append(sequence)
+    #print(len(sequence))
+    return seqs
+
+
+def write_fasta(seqs, filename, nums=False):
+    with open(filename, "w") as file:
+        for i in range(len(seqs)-1):
+            if nums:
+                line = parse_num_to_nuc(seqs[i], caps=True)
+            else: 
+                line = seqs[i]
+            strline = "".join(line) + "\n"
+            file.write(">" + str(i) + "\n" + strline)
+        
+        #print(line)
+        file.write(">last\n")
+        if nums:
+            parse_num_to_nuc(seqs[len(seqs)-1], caps=True)
+        else: 
+            line = seqs[len(seqs)-1]
+        file.write("".join(line))
 
